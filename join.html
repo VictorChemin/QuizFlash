@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rejoindre — QuizFlash</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .join-center { max-width: 480px; margin: 32px auto; padding: 0 24px; }
+    .code-inputs {
+      display: flex; gap: 8px; justify-content: center; margin: 20px 0;
+    }
+    .code-char {
+      width: 48px; height: 62px;
+      font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 1.6rem;
+      text-align: center; text-transform: uppercase;
+      border: 3px solid var(--border); border-radius: var(--radius-sm);
+      background: white; color: var(--purple); outline: none;
+      transition: border-color 0.15s;
+      caret-color: var(--purple);
+    }
+    .code-char:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(108,63,197,0.15); }
+
+    /* Waiting screen */
+    .wait-center {
+      max-width: 560px; margin: 40px auto; padding: 24px; text-align: center;
+    }
+    .wait-spinner {
+      width: 60px; height: 60px; border: 6px solid var(--border);
+      border-top-color: var(--purple); border-radius: 50%;
+      animation: spin 0.9s linear infinite; margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Play screen */
+    .play-layout { max-width: 700px; margin: 0 auto; padding: 20px 16px; }
+    .play-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; gap: 12px; flex-wrap: wrap;
+    }
+    .play-card {
+      background: white; border-radius: var(--radius-lg);
+      border: 2px solid var(--border); padding: 28px;
+      box-shadow: var(--shadow-lg);
+    }
+    .play-question-img {
+      width: 100%; max-height: 220px; object-fit: contain;
+      border-radius: var(--radius-sm); margin-bottom: 16px; display: block;
+    }
+    .play-question-text {
+      font-family: 'Nunito', sans-serif; font-weight: 800;
+      font-size: clamp(1.05rem, 2.5vw, 1.35rem); line-height: 1.35;
+      margin-bottom: 4px;
+    }
+
+    /* Result overlay after answer */
+    .answer-result {
+      text-align: center; padding: 24px;
+      font-family: 'Nunito', sans-serif;
+    }
+    .answer-result .result-icon { font-size: 4rem; display: block; margin-bottom: 12px; }
+    .answer-result .result-text { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
+    .answer-result .result-pts { font-size: 1rem; color: var(--text-muted); font-weight: 700; }
+    .answer-result .result-score { font-size: 1rem; font-weight: 800; color: var(--purple); margin-top: 6px; }
+
+    /* Results screen */
+    .results-center { max-width: 560px; margin: 0 auto; padding: 24px; text-align: center; }
+    .my-rank-card {
+      background: linear-gradient(135deg, var(--purple), var(--purple-light));
+      color: white; border-radius: var(--radius-lg); padding: 28px;
+      margin-bottom: 24px;
+    }
+    .my-rank-card .rank-num { font-size: 3rem; font-family: 'Nunito', sans-serif; font-weight: 900; }
+    .my-rank-card .rank-label { font-size: 1rem; opacity: 0.85; }
+    .my-rank-card .rank-score { font-size: 1.5rem; font-weight: 900; margin-top: 8px; }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+  </style>
+</head>
+<body>
+  <div class="confetti-bg"></div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">⚡ Quiz<span>Flash</span></a>
+    <div class="nav-links">
+      <a href="create.html">✏️ Créer</a>
+      <a href="host.html">🎮 Héberger</a>
+      <a href="join.html" class="active">🙋 Rejoindre</a>
+    </div>
+  </nav>
+
+  <div class="page">
+
+    <!-- ════════════════ JOIN FORM ════════════════ -->
+    <div class="screen active" id="screenJoin">
+      <div class="join-center">
+        <div style="text-align:center; padding:32px 0 24px;">
+          <span style="font-size:3rem; display:block; margin-bottom:10px;">🙋</span>
+          <h1 style="font-size:1.8rem; margin-bottom:8px;">Rejoindre un salon</h1>
+          <p style="color:var(--text-muted);">Entrez le code à 6 caractères donné par l'hôte.</p>
+        </div>
+
+        <div class="card">
+          <div class="form-group">
+            <label class="form-label" style="text-align:center; display:block;">Code du salon</label>
+            <div class="code-inputs" id="codeInputs">
+              <input class="code-char" maxlength="1" inputmode="text" autocomplete="off" />
+              <input class="code-char" maxlength="1" inputmode="text" autocomplete="off" />
+              <input class="code-char" maxlength="1" inputmode="text" autocomplete="off" />
+              <input class="code-char" maxlength="1" inputmode="text" autocomplete="off" />
+              <input class="code-char" maxlength="1" inputmode="text" autocomplete="off" />
+              <input class="code-char" maxlength="1" inputmode="text" autocomplete="off" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Votre pseudo</label>
+            <input type="text" class="form-input" id="nameInput" maxlength="24" placeholder="Ex: Alice 🦊" autocomplete="off" />
+          </div>
+          <button class="btn btn-primary btn-lg" id="joinBtn" disabled style="width:100%;">
+            🚀 Rejoindre
+          </button>
+          <p style="font-size:0.82rem; color:var(--text-muted); text-align:center; margin-top:10px;">
+            Connexion directe pair-à-pair · Aucun compte requis
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ CONNECTING ════════════════ -->
+    <div class="screen" id="screenConnecting">
+      <div class="wait-center">
+        <div class="wait-spinner"></div>
+        <h2 style="margin-bottom:8px;">Connexion en cours…</h2>
+        <p style="color:var(--text-muted);">Connexion au salon <strong id="connectingCode">——</strong></p>
+      </div>
+    </div>
+
+    <!-- ════════════════ LOBBY WAIT ════════════════ -->
+    <div class="screen" id="screenLobbyWait">
+      <div class="wait-center">
+        <span style="font-size:3.5rem; display:block; margin-bottom:16px; animation: float 2.5s ease-in-out infinite;">⚡</span>
+        <h2 style="margin-bottom:8px;">Vous êtes dans le salon !</h2>
+        <p style="color:var(--text-muted); margin-bottom:24px;">En attente du lancement par l'hôte…</p>
+
+        <div class="card" style="text-align:left; margin-bottom:20px;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:0.85rem; color:var(--text-muted); margin-bottom:6px;">MON PSEUDO</div>
+          <div style="font-family:'Nunito',sans-serif; font-weight:900; font-size:1.2rem; color:var(--purple);" id="myNameDisplay">—</div>
+        </div>
+
+        <div class="card" style="text-align:left;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <span style="font-family:'Nunito',sans-serif; font-weight:800;">Joueurs dans le salon</span>
+            <span id="waitPlayerCount" class="badge badge-purple">0</span>
+          </div>
+          <div class="participants-grid" id="waitParticipantsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ PLAY ════════════════ -->
+    <div class="screen" id="screenPlay">
+      <div class="play-layout">
+        <div class="play-header">
+          <div>
+            <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:0.85rem; color:var(--text-muted);" id="playProgress">Question 1 / —</div>
+            <div class="score-chip" style="margin-top:6px;">
+              <span>⭐</span>
+              <span id="myScoreDisplay">0 pts</span>
+            </div>
+          </div>
+          <div class="timer-ring-wrapper">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--border)" stroke-width="7"/>
+              <circle id="playTimerArc" cx="40" cy="40" r="34" fill="none" stroke="var(--purple)" stroke-width="7"
+                stroke-dasharray="213.6" stroke-dashoffset="0" stroke-linecap="round"/>
+            </svg>
+            <div class="timer-ring-value" id="playTimerVal">—</div>
+          </div>
+        </div>
+
+        <div class="play-card">
+          <div style="margin-bottom:14px;">
+            <div class="progress-bar"><div class="progress-fill" id="playProgressFill" style="width:0%"></div></div>
+          </div>
+
+          <!-- Question view -->
+          <div id="questionView">
+            <img id="playQuestionImg" class="play-question-img" src="" alt="" style="display:none;" />
+            <div class="play-question-text" id="playQuestionText">—</div>
+            <div class="answer-grid" id="playAnswerGrid"></div>
+          </div>
+
+          <!-- Answer result view -->
+          <div id="resultView" style="display:none;" class="answer-result">
+            <span class="result-icon" id="resultIcon">✅</span>
+            <div class="result-text" id="resultText">Bonne réponse !</div>
+            <div class="result-pts" id="resultPts">+500 pts</div>
+            <div class="result-score" id="resultScore">Total : 500 pts</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════ RESULTS ════════════════ -->
+    <div class="screen" id="screenResults">
+      <div class="results-center">
+        <div style="padding:32px 0 24px;">
+          <span style="font-size:3.5rem; display:block; margin-bottom:10px; text-align:center;">🏁</span>
+          <h1 style="font-size:2rem; text-align:center; margin-bottom:8px;">C'est fini !</h1>
+        </div>
+
+        <div class="my-rank-card">
+          <div class="rank-num" id="myRank">—</div>
+          <div class="rank-label" id="myRankLabel">sur — joueurs</div>
+          <div class="rank-score" id="myFinalScore">0 pts</div>
+        </div>
+
+        <div class="card" style="margin-bottom:24px; text-align:left;">
+          <div style="font-family:'Nunito',sans-serif; font-weight:800; margin-bottom:12px;">🏆 Classement</div>
+          <div id="finalLeaderboard"></div>
+        </div>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+          <a href="join.html" class="btn btn-primary">🔄 Rejouer</a>
+          <a href="index.html" class="btn btn-outline">🏠 Accueil</a>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page -->
+
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <script src="js/utils.js"></script>
+  <script>
+  // ══════════════════════════════════════════════
+  //  QUIZFLASH — PLAYER
+  // ══════════════════════════════════════════════
+  const LETTERS = ['A','B','C','D','E','F'];
+  const MEDAL = ['🥇','🥈','🥉'];
+
+  let peer = null;
+  let hostConn = null;
+  let myName = '';
+  let myScore = 0;
+  let myAnsweredThisQ = false;
+  let currentTimeLimit = 20;
+  let currentTimeLeft = 20;
+  let currentChoices = [];
+  let timerInterval = null;
+
+  // ── SCREENS ──
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ── CODE INPUTS ──
+  const codeInputs = Array.from(document.querySelectorAll('.code-char'));
+  const joinBtn = document.getElementById('joinBtn');
+  const nameInput = document.getElementById('nameInput');
+
+  codeInputs.forEach((inp, i) => {
+    inp.addEventListener('input', e => {
+      const val = e.target.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+      inp.value = val ? val[val.length - 1] : '';
+      if (val && i < codeInputs.length - 1) codeInputs[i + 1].focus();
+      checkFormReady();
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !inp.value && i > 0) {
+        codeInputs[i - 1].focus();
+        codeInputs[i - 1].value = '';
+        checkFormReady();
+      }
+    });
+    inp.addEventListener('paste', e => {
+      e.preventDefault();
+      const pasted = (e.clipboardData.getData('text') || '').replace(/[^a-zA-Z0-9]/g,'').toUpperCase().slice(0, 6);
+      pasted.split('').forEach((ch, j) => { if (codeInputs[i + j]) codeInputs[i + j].value = ch; });
+      checkFormReady();
+    });
+  });
+  nameInput.addEventListener('input', checkFormReady);
+
+  function getCode() { return codeInputs.map(i => i.value).join(''); }
+  function checkFormReady() { joinBtn.disabled = getCode().length < 6 || nameInput.value.trim().length < 1; }
+
+  joinBtn.addEventListener('click', joinRoom);
+  nameInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !joinBtn.disabled) joinRoom(); });
+
+  // ── JOIN ──
+  function joinRoom() {
+    const code = getCode();
+    myName = nameInput.value.trim().slice(0, 24);
+    if (!code || !myName) return;
+
+    document.getElementById('connectingCode').textContent = code;
+    showScreen('screenConnecting');
+
+    peer = new Peer(undefined, {
+      host: '0.peerjs.com', port: 443, path: '/', secure: true,
+      config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
+    });
+
+    peer.on('open', () => {
+      hostConn = peer.connect('qf-' + code, { reliable: true });
+      hostConn.on('open', () => {
+        hostConn.send({ type: 'join', name: myName });
+      });
+      hostConn.on('data', handleHostMessage);
+      hostConn.on('close', () => {
+        toast("Connexion perdue avec l'hôte", 'error');
+        showScreen('screenJoin');
+      });
+      hostConn.on('error', err => {
+        toast('Erreur : ' + err.message, 'error');
+        showScreen('screenJoin');
+      });
+    });
+
+    peer.on('error', err => {
+      if (err.type === 'peer-unavailable') {
+        toast('Salon introuvable. Vérifiez le code.', 'error');
+      } else {
+        toast('Erreur réseau : ' + err.message, 'error');
+      }
+      showScreen('screenJoin');
+    });
+  }
+
+  // ── HOST MESSAGES ──
+  function handleHostMessage(msg) {
+    switch (msg.type) {
+      case 'rejected':
+        toast('Connexion refusée : ' + msg.reason, 'error');
+        peer.destroy();
+        showScreen('screenJoin');
+        break;
+
+      case 'joined':
+        myName = msg.name;
+        document.getElementById('myNameDisplay').textContent = myName;
+        showScreen('screenLobbyWait');
+        toast('Connecté ! En attente du lancement…', 'success');
+        break;
+
+      case 'playerList':
+        updateWaitLobby(msg.players);
+        break;
+
+      case 'gameStart':
+        myScore = 0;
+        updateMyScore();
+        showScreen('screenPlay');
+        break;
+
+      case 'question':
+        receiveQuestion(msg);
+        break;
+
+      case 'tick':
+        updateTimer(msg.remaining, currentTimeLimit);
+        break;
+
+      case 'answerAck':
+        // answer was received by host — show waiting state
+        break;
+
+      case 'reveal':
+        onReveal(msg.correctIds, msg.scores);
+        break;
+
+      case 'nextQuestion':
+        showQuestionView();
+        break;
+
+      case 'gameEnd':
+        showResults(msg.scores);
+        break;
+
+      case 'backToLobby':
+        myScore = 0;
+        updateMyScore();
+        showScreen('screenLobbyWait');
+        break;
+    }
+  }
+
+  function updateWaitLobby(players) {
+    document.getElementById('waitPlayerCount').textContent = players.length;
+    const list = document.getElementById('waitParticipantsList');
+    list.innerHTML = '';
+    players.forEach(p => {
+      const chip = document.createElement('div');
+      chip.className = 'participant-chip';
+      chip.innerHTML = `<span class="dot" style="background:${p.color}"></span>${escHtml(p.name)}`;
+      list.appendChild(chip);
+    });
+  }
+
+  // ── QUESTION ──
+  function receiveQuestion(q) {
+    currentTimeLimit = q.timeLimit;
+    currentTimeLeft = q.timeLimit;
+    currentChoices = q.choices;
+    myAnsweredThisQ = false;
+
+    document.getElementById('playProgress').textContent = `Question ${q.index + 1} / ${q.total}`;
+    document.getElementById('playProgressFill').style.width = `${(q.index / q.total) * 100}%`;
+
+    const imgEl = document.getElementById('playQuestionImg');
+    if (q.image) { imgEl.src = q.image; imgEl.style.display = 'block'; }
+    else { imgEl.style.display = 'none'; }
+
+    document.getElementById('playQuestionText').textContent = q.text;
+
+    renderAnswerButtons(q.choices, false, null);
+    showQuestionView();
+    updateTimer(q.timeLimit, q.timeLimit);
+
+    // client-side timer (sync'd by host ticks)
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      currentTimeLeft = Math.max(0, currentTimeLeft - 1);
+      updateTimer(currentTimeLeft, currentTimeLimit);
+      if (currentTimeLeft <= 0) {
+        clearInterval(timerInterval);
+        disableAnswers();
+      }
+    }, 1000);
+  }
+
+  function renderAnswerButtons(choices, revealed, correctIds) {
+    const grid = document.getElementById('playAnswerGrid');
+    grid.innerHTML = '';
+    choices.forEach((c, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'answer-btn';
+      btn.dataset.id = c.id;
+      btn.innerHTML = `<span class="answer-letter">${LETTERS[i]}</span>${escHtml(c.text)}`;
+      if (!revealed) {
+        btn.addEventListener('click', () => submitAnswer(c.id));
+      } else {
+        btn.disabled = true;
+        if (correctIds && correctIds.includes(c.id)) btn.classList.add('correct');
+        else btn.classList.add('wrong');
+      }
+      grid.appendChild(btn);
+    });
+  }
+
+  function submitAnswer(choiceId) {
+    if (myAnsweredThisQ) return;
+    myAnsweredThisQ = true;
+    clearInterval(timerInterval);
+
+    hostConn.send({ type: 'answer', choiceId, timeLeft: currentTimeLeft });
+
+    // visual feedback — dim all, highlight chosen
+    const btns = document.querySelectorAll('#playAnswerGrid .answer-btn');
+    btns.forEach(b => {
+      b.disabled = true;
+      if (b.dataset.id === choiceId) b.classList.add('selected');
+    });
+    // show "waiting for reveal"
+    document.getElementById('playTimerVal').textContent = '⏳';
+  }
+
+  function disableAnswers() {
+    document.querySelectorAll('#playAnswerGrid .answer-btn').forEach(b => b.disabled = true);
+  }
+
+  function onReveal(correctIds, scores) {
+    clearInterval(timerInterval);
+    // find my new score
+    const me = scores.find(s => s.name === myName);
+    const prevScore = myScore;
+    if (me) myScore = me.score;
+    const gained = myScore - prevScore;
+
+    // reveal answers
+    renderAnswerButtons(currentChoices, true, correctIds);
+
+    // show result overlay
+    let myChoiceId = null;
+    document.querySelectorAll('#playAnswerGrid .answer-btn').forEach(b => {
+      if (b.classList.contains('selected')) myChoiceId = b.dataset.id;
+    });
+    const wasCorrect = correctIds.includes(myChoiceId);
+    const didAnswer = !!myChoiceId;
+
+    const resultView = document.getElementById('resultView');
+    const questionView = document.getElementById('questionView');
+    questionView.style.display = 'none';
+    resultView.style.display = 'block';
+    document.getElementById('resultIcon').textContent = !didAnswer ? '⏰' : wasCorrect ? '✅' : '❌';
+    document.getElementById('resultText').textContent = !didAnswer ? 'Temps écoulé !' : wasCorrect ? 'Bonne réponse !' : 'Mauvaise réponse';
+    document.getElementById('resultPts').textContent = gained > 0 ? `+${gained} pts` : '0 pt';
+    document.getElementById('resultScore').textContent = `Total : ${myScore} pts`;
+    updateMyScore();
+  }
+
+  function showQuestionView() {
+    document.getElementById('questionView').style.display = 'block';
+    document.getElementById('resultView').style.display = 'none';
+  }
+
+  function updateTimer(remaining, total) {
+    currentTimeLeft = remaining;
+    const arc = document.getElementById('playTimerArc');
+    const val = document.getElementById('playTimerVal');
+    if (!myAnsweredThisQ) {
+      val.textContent = remaining;
+      const circ = 2 * Math.PI * 34;
+      arc.style.strokeDashoffset = circ * (1 - remaining / total);
+      arc.style.stroke = remaining <= 5 ? 'var(--coral)' : 'var(--purple)';
+    }
+  }
+
+  function updateMyScore() {
+    document.getElementById('myScoreDisplay').textContent = myScore + ' pts';
+  }
+
+  // ── RESULTS ──
+  function showResults(scores) {
+    clearInterval(timerInterval);
+    const myRank = scores.findIndex(s => s.name === myName) + 1;
+
+    document.getElementById('myRank').textContent = myRank === 1 ? '🥇' : myRank === 2 ? '🥈' : myRank === 3 ? '🥉' : `#${myRank}`;
+    document.getElementById('myRankLabel').textContent = `sur ${scores.length} joueur(s)`;
+    document.getElementById('myFinalScore').textContent = `${myScore} pts`;
+
+    const lb = document.getElementById('finalLeaderboard');
+    lb.innerHTML = '';
+    scores.forEach((p, i) => {
+      const item = document.createElement('div');
+      item.className = 'leaderboard-item';
+      item.innerHTML = `
+        <span class="leaderboard-rank">${i < 3 ? MEDAL[i] : i + 1}</span>
+        <span class="leaderboard-name" style="${p.name === myName ? 'color:var(--purple);font-size:1.05rem;' : ''}">${escHtml(p.name)}${p.name === myName ? ' (moi)' : ''}</span>
+        <span class="leaderboard-score">${p.score} pts</span>
+      `;
+      lb.appendChild(item);
+    });
+
+    showScreen('screenResults');
+  }
+
+  // ── UTILS ──
+  function escHtml(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  </script>
+</body>
+</html>

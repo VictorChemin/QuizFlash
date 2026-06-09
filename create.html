@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Créer un quiz — QuizFlash</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .editor-layout {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+      align-items: start;
+    }
+    @media (max-width: 800px) {
+      .editor-layout { grid-template-columns: 1fr; }
+      .sidebar { order: -1; }
+    }
+    .sidebar { position: sticky; top: 80px; }
+    .sidebar .card { padding: 20px; }
+    .quiz-meta { margin-bottom: 16px; }
+    .question-list { display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; padding-right: 4px; }
+    .q-list-item {
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border);
+      background: white;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.88rem;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .q-list-item:hover { border-color: var(--purple); }
+    .q-list-item.active { background: var(--purple); color: white; border-color: var(--purple); }
+    .q-list-item .q-num { opacity: 0.6; font-size: 0.78rem; }
+    .q-list-item .q-text { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .q-list-item .q-del { font-size: 1rem; opacity: 0.5; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+    .q-list-item .q-del:hover { opacity: 1; background: rgba(255,107,107,0.2); color: var(--coral); }
+
+    .question-editor { background: white; border-radius: var(--radius); border: 2px solid var(--border); padding: 28px; box-shadow: var(--shadow); }
+    .answer-pool { display: flex; flex-direction: column; gap: 8px; }
+    .answer-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      transition: border-color 0.15s;
+    }
+    .answer-row:focus-within { border-color: var(--purple); }
+    .answer-row.correct-answer { border-color: var(--mint); background: rgba(62,207,170,0.05); }
+    .answer-row input[type=text] {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      color: var(--text);
+      outline: none;
+    }
+    .answer-toggle {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      border: 2.5px solid var(--border);
+      background: white;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .answer-toggle.is-correct { background: var(--mint); border-color: var(--mint); color: white; }
+    .answer-del { color: var(--text-muted); cursor: pointer; font-size: 1.1rem; transition: color 0.15s; }
+    .answer-del:hover { color: var(--coral); }
+
+    .image-preview-area {
+      border: 3px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-muted);
+      font-family: 'Nunito', sans-serif;
+      font-weight: 700;
+      font-size: 0.92rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .image-preview-area:hover { border-color: var(--purple); color: var(--purple); background: rgba(108,63,197,0.03); }
+    .image-preview-area img { max-width: 100%; max-height: 180px; border-radius: 8px; display: block; margin: 0 auto; }
+    .image-preview-area .placeholder { pointer-events: none; }
+
+    .num-choices-row { display: flex; align-items: center; gap: 14px; }
+    .num-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 2.5px solid var(--border);
+      background: white;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .num-btn:hover { border-color: var(--purple); color: var(--purple); }
+    .num-display {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900;
+      font-size: 1.5rem;
+      color: var(--purple);
+      min-width: 32px;
+      text-align: center;
+    }
+
+    .editor-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 20px; }
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--text-muted);
+      font-family: 'Nunito', sans-serif;
+    }
+    .empty-state .empty-icon { font-size: 3.5rem; display: block; margin-bottom: 14px; }
+    .empty-state h3 { font-size: 1.3rem; margin-bottom: 8px; color: var(--text); }
+
+    .section-divider {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin: 20px 0 10px;
+    }
+    .hint-text {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="confetti-bg"></div>
+
+  <nav class="nav">
+    <a href="index.html" class="nav-logo">⚡ Quiz<span>Flash</span></a>
+    <div class="nav-links">
+      <a href="create.html" class="active">✏️ Créer</a>
+      <a href="host.html">🎮 Héberger</a>
+      <a href="join.html">🙋 Rejoindre</a>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="editor-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="card quiz-meta" style="margin-bottom:16px;">
+          <div class="form-group">
+            <label class="form-label">Titre du quiz</label>
+            <input type="text" class="form-input" id="quizTitle" placeholder="Mon super quiz…" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description (optionnelle)</label>
+            <textarea class="form-textarea" id="quizDesc" placeholder="Pour qui est ce quiz ?" rows="2"></textarea>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:4px;">
+            <button class="btn btn-sm btn-outline" id="importBtn">📂 Ouvrir .quiz</button>
+            <input type="file" id="importInput" accept=".quiz,.json" hidden />
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+            <span style="font-family:'Nunito',sans-serif; font-weight:800;">Questions</span>
+            <span id="qCount" class="badge badge-purple">0</span>
+          </div>
+          <div class="question-list" id="questionList"></div>
+          <button class="btn btn-mint btn-sm" id="addQuestionBtn" style="width:100%; margin-top:12px;">+ Nouvelle question</button>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:16px;">
+          <button class="btn btn-primary" id="saveBtn" style="flex:1;">💾 Sauvegarder</button>
+          <button class="btn btn-yellow" id="downloadBtn" style="flex:1;">⬇️ Télécharger</button>
+        </div>
+        <p class="hint-text" style="text-align:center; margin-top:8px;">Fichier .quiz — stocké chez vous, pas sur nos serveurs</p>
+      </aside>
+
+      <!-- MAIN EDITOR -->
+      <main id="mainEditor">
+        <div class="empty-state" id="emptyState">
+          <span class="empty-icon">📝</span>
+          <h3>Votre quiz est vide</h3>
+          <p>Cliquez sur <strong>+ Nouvelle question</strong> pour commencer !</p>
+        </div>
+        <div id="questionEditor" style="display:none;" class="question-editor">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+            <h2 style="font-size:1.2rem;" id="qEditorTitle">Question 1</h2>
+            <button class="btn btn-sm btn-coral" id="deleteQBtn">🗑️ Supprimer</button>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Texte de la question</label>
+            <textarea class="form-textarea" id="qText" placeholder="Ex: Quelle est la capitale de la France ?" rows="3"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Image (optionnelle)</label>
+            <div class="image-preview-area" id="imageDropArea">
+              <span class="placeholder" id="imagePlaceholder">📷 Cliquez ou glissez une image ici</span>
+              <img id="imagePreview" src="" alt="aperçu" style="display:none;" />
+              <input type="file" id="imageInput" accept="image/*" hidden />
+            </div>
+            <button class="btn btn-sm btn-outline" id="removeImageBtn" style="margin-top:6px; display:none;">✕ Supprimer l'image</button>
+          </div>
+
+          <div class="section-divider">Banque de réponses</div>
+          <p class="hint-text" style="margin-bottom:12px;">Ajoutez autant de réponses que vous voulez. Marquez les bonnes avec ✓. Le quiz piochera au hasard parmi elles à chaque partie.</p>
+          
+          <div class="answer-pool" id="answerPool"></div>
+          <button class="btn btn-sm btn-outline" id="addAnswerBtn" style="margin-top:10px;">+ Ajouter une réponse</button>
+
+          <div class="section-divider" style="margin-top:20px;">Propositions affichées</div>
+          <p class="hint-text" style="margin-bottom:12px;">Combien de propositions montrer aux joueurs ? (choix au hasard dans la banque, au moins 1 bonne réponse garantie)</p>
+          <div class="num-choices-row">
+            <button class="num-btn" id="numDec">−</button>
+            <span class="num-display" id="numDisplay">4</span>
+            <button class="num-btn" id="numInc">+</button>
+            <span style="font-family:'Nunito',sans-serif; font-size:0.9rem; color:var(--text-muted);">propositions</span>
+          </div>
+
+          <div class="editor-actions">
+            <button class="btn btn-sm btn-outline" id="prevQBtn">← Précédente</button>
+            <button class="btn btn-sm btn-primary" id="saveQBtn">✓ Enregistrer</button>
+            <button class="btn btn-sm btn-outline" id="nextQBtn">Suivante →</button>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script>
+    // ── STATE ──
+    let quiz = { title: '', description: '', questions: [] };
+    let currentQIndex = -1;
+    let currentImage = null; // base64
+
+    const quizTitleEl = document.getElementById('quizTitle');
+    const quizDescEl = document.getElementById('quizDesc');
+    const questionListEl = document.getElementById('questionList');
+    const qCountEl = document.getElementById('qCount');
+    const emptyStateEl = document.getElementById('emptyState');
+    const questionEditorEl = document.getElementById('questionEditor');
+    const qEditorTitleEl = document.getElementById('qEditorTitle');
+    const qTextEl = document.getElementById('qText');
+    const answerPoolEl = document.getElementById('answerPool');
+    const numDisplayEl = document.getElementById('numDisplay');
+    const imagePreviewEl = document.getElementById('imagePreview');
+    const imagePlaceholderEl = document.getElementById('imagePlaceholder');
+    const removeImageBtnEl = document.getElementById('removeImageBtn');
+
+    // ── QUESTION LIST ──
+    function renderList() {
+      qCountEl.textContent = quiz.questions.length;
+      questionListEl.innerHTML = '';
+      quiz.questions.forEach((q, i) => {
+        const item = document.createElement('div');
+        item.className = 'q-list-item' + (i === currentQIndex ? ' active' : '');
+        item.innerHTML = `
+          <span class="q-num">${i + 1}</span>
+          <span class="q-text">${q.text || '(sans titre)'}</span>
+          <span class="q-del" data-idx="${i}" title="Supprimer">✕</span>
+        `;
+        item.addEventListener('click', (e) => {
+          if (e.target.classList.contains('q-del')) return;
+          saveCurrentQ();
+          loadQ(i);
+        });
+        item.querySelector('.q-del').addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteQ(i);
+        });
+        questionListEl.appendChild(item);
+      });
+      if (quiz.questions.length === 0) {
+        emptyStateEl.style.display = '';
+        questionEditorEl.style.display = 'none';
+      }
+    }
+
+    // ── LOAD QUESTION INTO EDITOR ──
+    function loadQ(index) {
+      currentQIndex = index;
+      const q = quiz.questions[index];
+      qEditorTitleEl.textContent = `Question ${index + 1}`;
+      qTextEl.value = q.text || '';
+      numDisplayEl.textContent = q.numChoices || 4;
+      currentImage = q.image || null;
+      renderImage();
+      renderAnswers(q.answers || []);
+      emptyStateEl.style.display = 'none';
+      questionEditorEl.style.display = '';
+      renderList();
+    }
+
+    // ── RENDER IMAGE ──
+    function renderImage() {
+      if (currentImage) {
+        imagePreviewEl.src = currentImage;
+        imagePreviewEl.style.display = 'block';
+        imagePlaceholderEl.style.display = 'none';
+        removeImageBtnEl.style.display = '';
+      } else {
+        imagePreviewEl.style.display = 'none';
+        imagePlaceholderEl.style.display = '';
+        removeImageBtnEl.style.display = 'none';
+      }
+    }
+
+    // ── RENDER ANSWERS ──
+    function renderAnswers(answers) {
+      answerPoolEl.innerHTML = '';
+      answers.forEach((a, i) => {
+        const row = createAnswerRow(a, i);
+        answerPoolEl.appendChild(row);
+      });
+    }
+
+    function createAnswerRow(a = { id: '', text: '', correct: false }, i = 0) {
+      const row = document.createElement('div');
+      row.className = 'answer-row' + (a.correct ? ' correct-answer' : '');
+      row.dataset.id = a.id || crypto.randomUUID();
+      row.innerHTML = `
+        <button class="answer-toggle ${a.correct ? 'is-correct' : ''}" title="Marquer comme correcte">✓</button>
+        <input type="text" placeholder="Texte de la réponse…" value="${(a.text || '').replace(/"/g, '&quot;')}" />
+        <span class="answer-del" title="Supprimer">✕</span>
+      `;
+      const toggle = row.querySelector('.answer-toggle');
+      toggle.addEventListener('click', () => {
+        const isCorrect = toggle.classList.toggle('is-correct');
+        row.classList.toggle('correct-answer', isCorrect);
+      });
+      row.querySelector('.answer-del').addEventListener('click', () => row.remove());
+      return row;
+    }
+
+    // ── COLLECT ANSWERS FROM DOM ──
+    function collectAnswers() {
+      return Array.from(answerPoolEl.querySelectorAll('.answer-row')).map(row => ({
+        id: row.dataset.id,
+        text: row.querySelector('input').value.trim(),
+        correct: row.querySelector('.answer-toggle').classList.contains('is-correct'),
+      })).filter(a => a.text.length > 0);
+    }
+
+    // ── SAVE CURRENT QUESTION ──
+    function saveCurrentQ() {
+      if (currentQIndex < 0 || currentQIndex >= quiz.questions.length) return;
+      quiz.questions[currentQIndex] = {
+        ...quiz.questions[currentQIndex],
+        text: qTextEl.value.trim(),
+        answers: collectAnswers(),
+        numChoices: parseInt(numDisplayEl.textContent) || 4,
+        image: currentImage,
+      };
+    }
+
+    // ── NEW QUESTION ──
+    function addQuestion() {
+      saveCurrentQ();
+      const q = {
+        id: crypto.randomUUID(),
+        text: '',
+        answers: [],
+        numChoices: 4,
+        image: null,
+      };
+      quiz.questions.push(q);
+      loadQ(quiz.questions.length - 1);
+    }
+
+    // ── DELETE QUESTION ──
+    function deleteQ(index) {
+      quiz.questions.splice(index, 1);
+      if (quiz.questions.length === 0) {
+        currentQIndex = -1;
+        emptyStateEl.style.display = '';
+        questionEditorEl.style.display = 'none';
+      } else {
+        const newIdx = Math.min(index, quiz.questions.length - 1);
+        loadQ(newIdx);
+      }
+      renderList();
+    }
+
+    // ── SAVE TO LOCALSTORAGE ──
+    function saveQuiz() {
+      saveCurrentQ();
+      quiz.title = quizTitleEl.value.trim() || 'Mon quiz';
+      quiz.description = quizDescEl.value.trim();
+      localStorage.setItem('quizflash_draft', JSON.stringify(quiz));
+      toast('Quiz sauvegardé !', 'success');
+    }
+
+    // ── DOWNLOAD ──
+    function downloadQuiz() {
+      saveCurrentQ();
+      quiz.title = quizTitleEl.value.trim() || 'Mon quiz';
+      quiz.description = quizDescEl.value.trim();
+      if (!quiz.title) { toast('Donnez un titre à votre quiz', 'warning'); return; }
+      if (quiz.questions.length === 0) { toast('Ajoutez au moins une question', 'warning'); return; }
+      const hasValid = quiz.questions.every(q => q.text && q.answers.length >= 2 && q.answers.some(a => a.correct));
+      if (!hasValid) { toast('Chaque question doit avoir un texte et au moins 2 réponses dont 1 correcte', 'warning'); return; }
+      downloadJSON({ ...quiz, version: '1.0', createdAt: new Date().toISOString() }, (quiz.title.replace(/\s+/g, '_') || 'quiz') + '.quiz');
+      toast('Quiz téléchargé !', 'success');
+    }
+
+    // ── IMAGE ──
+    document.getElementById('imageDropArea').addEventListener('click', () => {
+      document.getElementById('imageInput').click();
+    });
+    document.getElementById('imageInput').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        currentImage = ev.target.result;
+        renderImage();
+      };
+      reader.readAsDataURL(file);
+    });
+    document.getElementById('imageDropArea').addEventListener('dragover', e => { e.preventDefault(); e.currentTarget.style.borderColor = 'var(--purple)'; });
+    document.getElementById('imageDropArea').addEventListener('dragleave', e => { e.currentTarget.style.borderColor = ''; });
+    document.getElementById('imageDropArea').addEventListener('drop', e => {
+      e.preventDefault(); e.currentTarget.style.borderColor = '';
+      const file = e.dataTransfer.files[0];
+      if (!file || !file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = ev => { currentImage = ev.target.result; renderImage(); };
+      reader.readAsDataURL(file);
+    });
+    removeImageBtnEl.addEventListener('click', () => { currentImage = null; renderImage(); });
+
+    // ── NUM CHOICES ──
+    document.getElementById('numDec').addEventListener('click', () => {
+      const v = parseInt(numDisplayEl.textContent);
+      if (v > 2) numDisplayEl.textContent = v - 1;
+    });
+    document.getElementById('numInc').addEventListener('click', () => {
+      const v = parseInt(numDisplayEl.textContent);
+      if (v < 6) numDisplayEl.textContent = v + 1;
+    });
+
+    // ── NAVIGATION ──
+    document.getElementById('prevQBtn').addEventListener('click', () => {
+      if (currentQIndex > 0) { saveCurrentQ(); loadQ(currentQIndex - 1); }
+    });
+    document.getElementById('nextQBtn').addEventListener('click', () => {
+      if (currentQIndex < quiz.questions.length - 1) { saveCurrentQ(); loadQ(currentQIndex + 1); }
+    });
+    document.getElementById('saveQBtn').addEventListener('click', () => { saveCurrentQ(); renderList(); toast('Question enregistrée', 'success'); });
+    document.getElementById('deleteQBtn').addEventListener('click', () => { if (currentQIndex >= 0) deleteQ(currentQIndex); });
+
+    // ── WIRING ──
+    document.getElementById('addQuestionBtn').addEventListener('click', addQuestion);
+    document.getElementById('addAnswerBtn').addEventListener('click', () => {
+      const row = createAnswerRow();
+      answerPoolEl.appendChild(row);
+      row.querySelector('input').focus();
+    });
+    document.getElementById('saveBtn').addEventListener('click', saveQuiz);
+    document.getElementById('downloadBtn').addEventListener('click', downloadQuiz);
+
+    // ── IMPORT ──
+    document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importInput').click());
+    document.getElementById('importInput').addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const data = await readQuizFile(file);
+        quiz = data;
+        quizTitleEl.value = data.title || '';
+        quizDescEl.value = data.description || '';
+        if (quiz.questions.length > 0) loadQ(0);
+        renderList();
+        toast('Quiz importé !', 'success');
+      } catch (err) {
+        toast('Erreur lors de l\'importation : ' + err.message, 'error');
+      }
+    });
+
+    // ── LOAD DRAFT ──
+    const draft = localStorage.getItem('quizflash_draft');
+    if (draft) {
+      try {
+        quiz = JSON.parse(draft);
+        quizTitleEl.value = quiz.title || '';
+        quizDescEl.value = quiz.description || '';
+        if (quiz.questions.length > 0) loadQ(0);
+        renderList();
+      } catch { localStorage.removeItem('quizflash_draft'); }
+    } else {
+      renderList();
+    }
+  </script>
+</body>
+</html>
