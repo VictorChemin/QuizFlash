@@ -6,25 +6,16 @@
   <title>Héberger — QuizFlash</title>
   <link rel="stylesheet" href="css/style.css" />
   <style>
-    /* ── SETUP SCREEN ── */
     .setup-card { max-width: 640px; margin: 32px auto; padding: 0 24px; }
     .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     @media (max-width: 560px) { .config-grid { grid-template-columns: 1fr; } }
 
-    /* ── LOBBY SCREEN ── */
     .lobby-layout {
       max-width: 800px; margin: 0 auto; padding: 24px;
       display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
     }
     @media (max-width: 640px) { .lobby-layout { grid-template-columns: 1fr; } }
-    .qr-placeholder {
-      width: 120px; height: 120px; background: var(--border);
-      border-radius: var(--radius-sm); display: flex;
-      align-items: center; justify-content: center;
-      font-size: 3rem; margin: 0 auto 12px;
-    }
 
-    /* ── GAME SCREEN ── */
     .game-layout { max-width: 860px; margin: 0 auto; padding: 24px; }
     .game-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -35,105 +26,68 @@
       border: 2px solid var(--border); padding: 32px;
       box-shadow: var(--shadow-lg);
     }
-    .question-img {
-      width: 100%; max-height: 260px; object-fit: contain;
-      border-radius: var(--radius-sm); margin-bottom: 20px;
-      display: block;
-    }
-    .question-text {
-      font-family: 'Nunito', sans-serif; font-weight: 800;
-      font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-      margin-bottom: 8px; line-height: 1.35;
-    }
+    .question-img { width:100%; max-height:260px; object-fit:contain; border-radius:var(--radius-sm); margin-bottom:20px; display:block; }
+    .question-text { font-family:'Nunito',sans-serif; font-weight:800; font-size:clamp(1.1rem,2.5vw,1.5rem); margin-bottom:8px; line-height:1.35; }
 
-    /* answers in host view = same grid but greyed out during waiting */
-    .host-answer-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px;
-    }
-    @media (max-width: 540px) { .host-answer-grid { grid-template-columns: 1fr; } }
+    .host-answer-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+    @media (max-width:540px) { .host-answer-grid { grid-template-columns:1fr; } }
     .host-answer-item {
-      padding: 14px 18px; border-radius: var(--radius);
-      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 1rem;
-      display: flex; align-items: center; gap: 10px;
-      border: 3px solid transparent; opacity: 0.85;
+      padding:14px 18px; border-radius:var(--radius);
+      font-family:'Nunito',sans-serif; font-weight:800; font-size:1rem;
+      display:flex; align-items:center; gap:10px;
+      border:3px solid transparent; opacity:0.85;
     }
-    .host-answer-item:nth-child(1) { background: rgba(108,63,197,0.1); color: var(--purple); }
-    .host-answer-item:nth-child(2) { background: rgba(255,212,59,0.18); color: #7A5800; }
-    .host-answer-item:nth-child(3) { background: rgba(62,207,170,0.12); color: #1A7A64; }
-    .host-answer-item:nth-child(4) { background: rgba(255,107,107,0.12); color: #8B1D1D; }
-    .host-answer-item .answer-letter {
-      width: 28px; height: 28px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.85rem; flex-shrink: 0; color: white;
-    }
-    .host-answer-item:nth-child(1) .answer-letter { background: var(--purple); }
-    .host-answer-item:nth-child(2) .answer-letter { background: var(--yellow-dark); }
-    .host-answer-item:nth-child(3) .answer-letter { background: var(--mint); }
-    .host-answer-item:nth-child(4) .answer-letter { background: var(--coral); }
-    .host-answer-item.revealed-correct {
-      background: var(--mint) !important; color: white !important;
-      border-color: #1A7A64 !important; opacity: 1;
-    }
-    .host-answer-item.revealed-correct .answer-letter { background: rgba(255,255,255,0.3); }
-    .host-answer-item.revealed-wrong { opacity: 0.45; }
+    .host-answer-item:nth-child(1) { background:rgba(108,63,197,0.1); color:var(--purple); }
+    .host-answer-item:nth-child(2) { background:rgba(255,212,59,0.18); color:#7A5800; }
+    .host-answer-item:nth-child(3) { background:rgba(62,207,170,0.12); color:#1A7A64; }
+    .host-answer-item:nth-child(4) { background:rgba(255,107,107,0.12); color:#8B1D1D; }
+    .host-answer-item .answer-letter { width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;color:white; }
+    .host-answer-item:nth-child(1) .answer-letter { background:var(--purple); }
+    .host-answer-item:nth-child(2) .answer-letter { background:var(--yellow-dark); }
+    .host-answer-item:nth-child(3) .answer-letter { background:var(--mint); }
+    .host-answer-item:nth-child(4) .answer-letter { background:var(--coral); }
+    .host-answer-item.revealed-correct { background:var(--mint)!important;color:white!important;border-color:#1A7A64!important;opacity:1; }
+    .host-answer-item.revealed-correct .answer-letter { background:rgba(255,255,255,0.3); }
+    .host-answer-item.revealed-wrong { opacity:0.4; }
+    .answer-count-badge { margin-left:auto;background:rgba(255,255,255,0.6);color:var(--text);font-size:.82rem;font-weight:800;padding:2px 10px;border-radius:50px;font-family:'Nunito',sans-serif; }
 
-    /* answer count badges */
-    .answer-count-badge {
-      margin-left: auto; background: rgba(255,255,255,0.6);
-      color: var(--text); font-size: 0.82rem; font-weight: 800;
-      padding: 2px 10px; border-radius: 50px;
-      font-family: 'Nunito', sans-serif;
-    }
+    .live-scoreboard { background:white;border-radius:var(--radius);border:2px solid var(--border);padding:16px;box-shadow:var(--shadow);margin-top:20px; }
+    .live-score-title { font-family:'Nunito',sans-serif;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px; }
+    .live-score-row { display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-family:'Nunito',sans-serif;font-size:.9rem; }
+    .live-score-row:last-child { border-bottom:none; }
+    .live-score-name { flex:1;font-weight:700; }
+    .live-score-pts { font-weight:900;color:var(--purple); }
+    .live-score-answered { font-size:.78rem;color:var(--text-muted); }
 
-    /* live scoreboard sidebar */
-    .live-scoreboard {
-      background: white; border-radius: var(--radius);
-      border: 2px solid var(--border); padding: 16px;
-      box-shadow: var(--shadow); margin-top: 20px;
-    }
-    .live-score-title {
-      font-family: 'Nunito', sans-serif; font-weight: 800;
-      margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
-    }
-    .live-score-row {
-      display: flex; align-items: center; gap: 10px;
-      padding: 6px 0; border-bottom: 1px solid var(--border);
-      font-family: 'Nunito', sans-serif; font-size: 0.9rem;
-    }
-    .live-score-row:last-child { border-bottom: none; }
-    .live-score-name { flex: 1; font-weight: 700; }
-    .live-score-pts { font-weight: 900; color: var(--purple); }
-    .live-score-answered { font-size: 0.78rem; color: var(--text-muted); }
+    /* timer — hidden when no-timer mode */
+    .timer-hidden { visibility:hidden; }
 
-    /* ── RESULTS ── */
-    .results-layout { max-width: 700px; margin: 0 auto; padding: 24px; }
-    .podium {
-      display: flex; align-items: flex-end; justify-content: center;
-      gap: 12px; margin-bottom: 32px; height: 180px;
-    }
-    .podium-slot {
-      display: flex; flex-direction: column; align-items: center;
-      gap: 8px; flex: 1; max-width: 160px;
-    }
-    .podium-name { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.95rem; text-align: center; }
-    .podium-score { font-family: 'Nunito', sans-serif; font-weight: 900; color: var(--purple); }
-    .podium-block {
-      width: 100%; border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.8rem;
-    }
-    .podium-block.p1 { height: 110px; background: linear-gradient(135deg,#FFD43B,#F59E0B); }
-    .podium-block.p2 { height: 80px; background: linear-gradient(135deg,#D0D0D0,#A0A0A0); }
-    .podium-block.p3 { height: 60px; background: linear-gradient(135deg,#CD7F32,#9A5F1E); }
+    .results-layout { max-width:700px;margin:0 auto;padding:24px; }
+    .podium { display:flex;align-items:flex-end;justify-content:center;gap:12px;margin-bottom:32px;height:180px; }
+    .podium-slot { display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;max-width:160px; }
+    .podium-name { font-family:'Nunito',sans-serif;font-weight:800;font-size:.95rem;text-align:center; }
+    .podium-score { font-family:'Nunito',sans-serif;font-weight:900;color:var(--purple); }
+    .podium-block { width:100%;border-radius:var(--radius-sm) var(--radius-sm) 0 0;display:flex;align-items:center;justify-content:center;font-size:1.8rem; }
+    .podium-block.p1 { height:110px;background:linear-gradient(135deg,#FFD43B,#F59E0B); }
+    .podium-block.p2 { height:80px;background:linear-gradient(135deg,#D0D0D0,#A0A0A0); }
+    .podium-block.p3 { height:60px;background:linear-gradient(135deg,#CD7F32,#9A5F1E); }
 
-    /* screens */
-    .screen { display: none; }
-    .screen.active { display: block; }
+    /* multi-answer mode badge */
+    .mode-badge {
+      display:inline-flex;align-items:center;gap:6px;
+      font-family:'Nunito',sans-serif;font-weight:800;font-size:.82rem;
+      padding:4px 14px;border-radius:50px;margin-bottom:12px;
+    }
+    .mode-badge.mode-any { background:rgba(62,207,170,0.15);color:#1A7A64; }
+    .mode-badge.mode-all { background:rgba(108,63,197,0.12);color:var(--purple); }
+    .mode-badge.mode-single { background:rgba(255,212,59,0.2);color:#7A5800; }
+
+    .screen { display:none; }
+    .screen.active { display:block; }
   </style>
 </head>
 <body>
   <div class="confetti-bg"></div>
-
   <nav class="nav">
     <a href="index.html" class="nav-logo">⚡ Quiz<span>Flash</span></a>
     <div class="nav-links">
@@ -145,35 +99,32 @@
 
   <div class="page">
 
-    <!-- ════════════════ SETUP ════════════════ -->
+    <!-- ══ SETUP ══ -->
     <div class="screen active" id="screenSetup">
       <div class="setup-card">
-        <div style="text-align:center; padding: 32px 0 24px;">
-          <span style="font-size:3rem; display:block; margin-bottom:10px;">🎮</span>
-          <h1 style="font-size:1.8rem; margin-bottom:8px;">Héberger une partie</h1>
+        <div style="text-align:center;padding:32px 0 24px;">
+          <span style="font-size:3rem;display:block;margin-bottom:10px;">🎮</span>
+          <h1 style="font-size:1.8rem;margin-bottom:8px;">Héberger une partie</h1>
           <p style="color:var(--text-muted);">Importez votre fichier .quiz et configurez la partie.</p>
         </div>
-
         <div class="card">
-          <!-- import -->
           <div class="form-group">
             <label class="form-label">Fichier .quiz</label>
-            <div id="dropZone" style="border:3px dashed var(--border); border-radius:var(--radius-sm); padding:28px; text-align:center; cursor:pointer; transition:all 0.2s; font-family:'Nunito',sans-serif; font-weight:700; color:var(--text-muted);">
-              <span id="dropZoneIcon" style="font-size:2rem; display:block; margin-bottom:8px;">📂</span>
+            <div id="dropZone" style="border:3px dashed var(--border);border-radius:var(--radius-sm);padding:28px;text-align:center;cursor:pointer;transition:all 0.2s;font-family:'Nunito',sans-serif;font-weight:700;color:var(--text-muted);">
+              <span id="dropZoneIcon" style="font-size:2rem;display:block;margin-bottom:8px;">📂</span>
               <span id="dropZoneText">Cliquez ou glissez votre fichier .quiz ici</span>
             </div>
             <input type="file" id="quizFileInput" accept=".quiz,.json" hidden />
           </div>
-
-          <div id="quizPreview" style="display:none; background:rgba(108,63,197,0.06); border-radius:var(--radius-sm); padding:14px 18px; margin-bottom:16px;">
-            <div style="font-family:'Nunito',sans-serif; font-weight:800; font-size:1rem;" id="previewTitle">—</div>
-            <div style="font-size:0.88rem; color:var(--text-muted);" id="previewMeta">—</div>
+          <div id="quizPreview" style="display:none;background:rgba(108,63,197,0.06);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:16px;">
+            <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;" id="previewTitle">—</div>
+            <div style="font-size:.88rem;color:var(--text-muted);" id="previewMeta">—</div>
           </div>
-
           <div class="config-grid">
             <div class="form-group">
               <label class="form-label">⏱ Temps par question</label>
               <select class="form-select" id="timePerQ">
+                <option value="0">⏸ Sans limite</option>
                 <option value="10">10 secondes</option>
                 <option value="15">15 secondes</option>
                 <option value="20" selected>20 secondes</option>
@@ -210,82 +161,72 @@
               </select>
             </div>
           </div>
-
-          <button class="btn btn-primary btn-lg" id="createRoomBtn" disabled style="width:100%; margin-top:8px;">
-            🚀 Créer le salon
-          </button>
-          <p style="font-size:0.82rem; color:var(--text-muted); text-align:center; margin-top:10px;">
-            La connexion est pair-à-pair via PeerJS. Aucune donnée de jeu ne transite par nos serveurs.
-          </p>
+          <button class="btn btn-primary btn-lg" id="createRoomBtn" disabled style="width:100%;margin-top:8px;">🚀 Créer le salon</button>
+          <p style="font-size:.82rem;color:var(--text-muted);text-align:center;margin-top:10px;">Connexion pair-à-pair via PeerJS · Aucune donnée de jeu sur nos serveurs.</p>
         </div>
       </div>
     </div>
 
-    <!-- ════════════════ LOBBY ════════════════ -->
+    <!-- ══ LOBBY ══ -->
     <div class="screen" id="screenLobby">
       <div class="lobby-layout">
         <div>
-          <div class="card" style="text-align:center; margin-bottom:16px;">
-            <div style="font-family:'Nunito',sans-serif; font-weight:700; color:var(--text-muted); font-size:0.88rem; margin-bottom:8px; text-transform:uppercase; letter-spacing:0.06em;">Code du salon</div>
+          <div class="card" style="text-align:center;margin-bottom:16px;">
+            <div style="font-family:'Nunito',sans-serif;font-weight:700;color:var(--text-muted);font-size:.88rem;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;">Code du salon</div>
             <div class="room-code" id="roomCodeDisplay" onclick="copyCode()">——</div>
-            <p style="font-size:0.82rem; color:var(--text-muted); margin-top:10px;">Cliquez pour copier · Partagez ce code avec vos joueurs</p>
+            <p style="font-size:.82rem;color:var(--text-muted);margin-top:10px;">Cliquez pour copier · Partagez ce code avec vos joueurs</p>
           </div>
           <div class="card">
-            <div style="font-family:'Nunito',sans-serif; font-weight:800; margin-bottom:4px;">📋 Quiz chargé</div>
-            <div style="font-weight:700; font-size:1rem; color:var(--purple); margin-bottom:2px;" id="lobbyQuizTitle">—</div>
-            <div style="font-size:0.85rem; color:var(--text-muted);" id="lobbyQuizMeta">—</div>
+            <div style="font-family:'Nunito',sans-serif;font-weight:800;margin-bottom:4px;">📋 Quiz chargé</div>
+            <div style="font-weight:700;font-size:1rem;color:var(--purple);margin-bottom:2px;" id="lobbyQuizTitle">—</div>
+            <div style="font-size:.85rem;color:var(--text-muted);" id="lobbyQuizMeta">—</div>
             <div style="margin-top:14px;">
-              <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:0.85rem; color:var(--text-muted); margin-bottom:6px;">PARAMÈTRES</div>
-              <div id="lobbyConfig" style="font-size:0.9rem; line-height:2; font-family:'Nunito',sans-serif; font-weight:700;"></div>
+              <div style="font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;color:var(--text-muted);margin-bottom:6px;">PARAMÈTRES</div>
+              <div id="lobbyConfig" style="font-size:.9rem;line-height:2;font-family:'Nunito',sans-serif;font-weight:700;"></div>
             </div>
           </div>
         </div>
         <div>
           <div class="card">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
-              <span style="font-family:'Nunito',sans-serif; font-weight:800;">Joueurs connectés</span>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <span style="font-family:'Nunito',sans-serif;font-weight:800;">Joueurs connectés</span>
               <span id="playerCount" class="badge badge-purple">0</span>
             </div>
             <div class="participants-grid" id="participantsList"></div>
-            <div style="margin-top:16px; padding-top:16px; border-top:2px solid var(--border); color:var(--text-muted); font-size:0.85rem; font-family:'Nunito',sans-serif;">
-              En attente de joueurs… Partagez le code ci-contre !
-            </div>
+            <div style="margin-top:16px;padding-top:16px;border-top:2px solid var(--border);color:var(--text-muted);font-size:.85rem;font-family:'Nunito',sans-serif;">En attente de joueurs… Partagez le code !</div>
           </div>
-          <button class="btn btn-primary btn-lg" id="startGameBtn" disabled style="width:100%; margin-top:16px;">
-            ▶ Lancer la partie
-          </button>
-          <p id="startHint" style="text-align:center; font-size:0.82rem; color:var(--text-muted); margin-top:8px;">Au moins 1 joueur requis</p>
+          <button class="btn btn-primary btn-lg" id="startGameBtn" disabled style="width:100%;margin-top:16px;">▶ Lancer la partie</button>
+          <p id="startHint" style="text-align:center;font-size:.82rem;color:var(--text-muted);margin-top:8px;">Au moins 1 joueur requis</p>
         </div>
       </div>
     </div>
 
-    <!-- ════════════════ GAME ════════════════ -->
+    <!-- ══ GAME ══ -->
     <div class="screen" id="screenGame">
       <div class="game-layout">
         <div class="game-header">
           <div>
-            <div style="font-family:'Nunito',sans-serif; font-weight:700; font-size:0.85rem; color:var(--text-muted);" id="gameProgress">Question 1 / —</div>
-            <div style="font-family:'Nunito',sans-serif; font-weight:800; font-size:1.1rem;" id="gameQuizTitle">—</div>
+            <div style="font-family:'Nunito',sans-serif;font-weight:700;font-size:.85rem;color:var(--text-muted);" id="gameProgress">Question 1 / —</div>
+            <div style="font-family:'Nunito',sans-serif;font-weight:800;font-size:1.1rem;" id="gameQuizTitle">—</div>
           </div>
-          <div style="display:flex; align-items:center; gap:16px;">
-            <div style="font-size:0.85rem; font-family:'Nunito',sans-serif; font-weight:700; color:var(--text-muted);">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div style="font-size:.85rem;font-family:'Nunito',sans-serif;font-weight:700;color:var(--text-muted);">
               <span id="gameAnsweredCount">0</span>/<span id="gameTotalPlayers">0</span> ont répondu
             </div>
             <div class="timer-ring-wrapper" id="timerWrapper">
               <svg width="80" height="80" viewBox="0 0 80 80">
                 <circle cx="40" cy="40" r="34" fill="none" stroke="var(--border)" stroke-width="7"/>
                 <circle id="timerArc" cx="40" cy="40" r="34" fill="none" stroke="var(--purple)" stroke-width="7"
-                  stroke-dasharray="213.6" stroke-dashoffset="0" stroke-linecap="round" transition="stroke-dashoffset 1s linear"/>
+                  stroke-dasharray="213.6" stroke-dashoffset="0" stroke-linecap="round"/>
               </svg>
-              <div class="timer-ring-value" id="timerVal">20</div>
+              <div class="timer-ring-value" id="timerVal">—</div>
             </div>
           </div>
         </div>
 
         <div class="question-card">
-          <div style="margin-bottom:12px;">
-            <div class="progress-bar"><div class="progress-fill" id="qProgressFill" style="width:0%"></div></div>
-          </div>
+          <div style="margin-bottom:12px;"><div class="progress-bar"><div class="progress-fill" id="qProgressFill" style="width:0%"></div></div></div>
+          <div id="questionModeBadge"></div>
           <img id="questionImg" class="question-img" src="" alt="" style="display:none;" />
           <div class="question-text" id="questionText">—</div>
           <div class="host-answer-grid" id="hostAnswerGrid"></div>
@@ -295,61 +236,47 @@
           <div class="live-score-title">🏆 Scores en direct</div>
           <div id="liveScoreList"></div>
         </div>
-
-        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
           <button class="btn btn-outline btn-sm" id="revealBtn">👁 Révéler les réponses</button>
           <button class="btn btn-primary" id="nextQBtn" disabled>Suivante →</button>
         </div>
       </div>
     </div>
 
-    <!-- ════════════════ RESULTS ════════════════ -->
+    <!-- ══ RESULTS ══ -->
     <div class="screen" id="screenResults">
       <div class="results-layout">
-        <div style="text-align:center; padding:32px 0 24px;">
-          <span style="font-size:3.5rem; display:block; margin-bottom:10px;">🎉</span>
+        <div style="text-align:center;padding:32px 0 24px;">
+          <span style="font-size:3.5rem;display:block;margin-bottom:10px;">🎉</span>
           <h1 style="font-size:2rem;">Partie terminée !</h1>
           <p style="color:var(--text-muted);" id="resultsSubtitle">Voici le classement final.</p>
         </div>
-
         <div class="podium" id="podium"></div>
-
-        <div class="card" style="margin-bottom:24px;">
-          <div id="fullLeaderboard"></div>
-        </div>
-
-        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+        <div class="card" style="margin-bottom:24px;"><div id="fullLeaderboard"></div></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
           <button class="btn btn-primary" id="playAgainBtn">🔄 Rejouer</button>
           <a href="index.html" class="btn btn-outline">🏠 Accueil</a>
         </div>
       </div>
     </div>
 
-  </div><!-- /page -->
+  </div>
 
   <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
   <script src="js/utils.js"></script>
   <script>
-  // ══════════════════════════════════════════════
-  //  QUIZFLASH — HOST
-  // ══════════════════════════════════════════════
   const LETTERS = ['A','B','C','D','E','F'];
 
-  // ── STATE ──
-  let quiz = null;
-  let gameConfig = {};
-  let peer = null;
-  let connections = {}; // peerId -> { conn, name, color }
+  let quiz = null, gameConfig = {}, peer = null;
+  let connections = {}, players = {};
   let roomCode = '';
-  let players = {}; // peerId -> { name, color, score, answered }
-  let gameQuestions = []; // prepared questions for this session
+  let gameQuestions = [];
   let currentQIdx = -1;
   let timer = null;
   let revealed = false;
-  let answerTally = {}; // choiceId -> count
-  let playerAnswers = {}; // peerId -> choiceId
+  let answerTally = {};
+  let playerAnswers = {}; // pid -> choiceId or [choiceIds]
 
-  // ── SCREENS ──
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
@@ -358,15 +285,10 @@
   // ── FILE IMPORT ──
   const dropZone = document.getElementById('dropZone');
   const quizFileInput = document.getElementById('quizFileInput');
-
   dropZone.addEventListener('click', () => quizFileInput.click());
   dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.style.borderColor = 'var(--purple)'; });
-  dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = ''; });
-  dropZone.addEventListener('drop', e => {
-    e.preventDefault(); dropZone.style.borderColor = '';
-    const file = e.dataTransfer.files[0];
-    if (file) loadQuizFile(file);
-  });
+  dropZone.addEventListener('dragleave', () => dropZone.style.borderColor = '');
+  dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.style.borderColor = ''; if (e.dataTransfer.files[0]) loadQuizFile(e.dataTransfer.files[0]); });
   quizFileInput.addEventListener('change', e => { if (e.target.files[0]) loadQuizFile(e.target.files[0]); });
 
   async function loadQuizFile(file) {
@@ -374,7 +296,6 @@
       const data = await readQuizFile(file);
       if (!data.questions || data.questions.length === 0) { toast('Le fichier ne contient aucune question', 'error'); return; }
       quiz = data;
-      // show preview
       const previewEl = document.getElementById('quizPreview');
       previewEl.style.display = 'block';
       document.getElementById('previewTitle').textContent = data.title || 'Sans titre';
@@ -384,9 +305,7 @@
       document.getElementById('dropZoneText').textContent = file.name;
       document.getElementById('createRoomBtn').disabled = false;
       toast('Quiz chargé !', 'success');
-    } catch(err) {
-      toast('Erreur : ' + err.message, 'error');
-    }
+    } catch(err) { toast('Erreur : ' + err.message, 'error'); }
   }
 
   // ── CREATE ROOM ──
@@ -394,32 +313,25 @@
 
   function createRoom() {
     if (!quiz) return;
+    const timeVal = parseInt(document.getElementById('timePerQ').value);
     gameConfig = {
-      timePerQ: parseInt(document.getElementById('timePerQ').value),
+      timePerQ: timeVal,   // 0 = pas de limite
+      noTimer: timeVal === 0,
       maxPlayers: parseInt(document.getElementById('maxPlayers').value),
       numQuestions: document.getElementById('numQuestions').value,
       scoringMode: document.getElementById('scoringMode').value,
     };
-
     roomCode = generateCode();
     document.getElementById('createRoomBtn').disabled = true;
     document.getElementById('createRoomBtn').textContent = '⏳ Connexion…';
 
-    // PeerJS — use the room code as the peer id (prefixed)
-    peer = new Peer('qf-' + roomCode, {
-      host: '0.peerjs.com', port: 443, path: '/', secure: true,
-      config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] }
-    });
-
-    peer.on('open', () => {
-      showLobby();
-    });
+    peer = new Peer('qf-' + roomCode, { host:'0.peerjs.com', port:443, path:'/', secure:true, config:{iceServers:[{urls:'stun:stun.l.google.com:19302'}]} });
+    peer.on('open', showLobby);
     peer.on('error', err => {
       if (err.type === 'unavailable-id') {
-        // code collision — regenerate
         peer.destroy();
         roomCode = generateCode();
-        peer = new Peer('qf-' + roomCode, { host: '0.peerjs.com', port: 443, path: '/', secure: true });
+        peer = new Peer('qf-' + roomCode, { host:'0.peerjs.com', port:443, path:'/', secure:true });
         peer.on('open', showLobby);
         peer.on('connection', handleConnection);
         peer.on('error', e => toast('Erreur réseau : ' + e.message, 'error'));
@@ -438,7 +350,9 @@
     const nq = gameConfig.numQuestions === 'all' ? quiz.questions.length : Math.min(parseInt(gameConfig.numQuestions), quiz.questions.length);
     document.getElementById('lobbyQuizMeta').textContent = `${quiz.questions.length} question(s) dans la banque`;
     document.getElementById('lobbyConfig').innerHTML =
-      `⏱ ${gameConfig.timePerQ}s par question<br>👥 Max ${gameConfig.maxPlayers} joueurs<br>❓ ${nq} question(s) posées<br>🏆 Scoring : ${gameConfig.scoringMode === 'speed' ? 'rapidité' : 'flat 10 pts'}`;
+      `${gameConfig.noTimer ? '⏸ Sans limite de temps' : '⏱ ' + gameConfig.timePerQ + 's par question'}<br>` +
+      `👥 Max ${gameConfig.maxPlayers} joueurs<br>❓ ${nq} question(s)<br>` +
+      `🏆 ${gameConfig.scoringMode === 'speed' ? 'Scoring rapidité' : 'Scoring flat 10 pts'}`;
     showScreen('screenLobby');
     toast('Salon créé ! Code : ' + roomCode, 'success', 5000);
   }
@@ -447,18 +361,8 @@
   function handleConnection(conn) {
     const pid = conn.peer;
     conn.on('open', () => {
-      // check if room is full or game in progress
-      const playerCount = Object.keys(players).length;
-      if (playerCount >= gameConfig.maxPlayers) {
-        conn.send({ type: 'rejected', reason: 'Salon complet' });
-        conn.close();
-        return;
-      }
-      if (currentQIdx >= 0) {
-        conn.send({ type: 'rejected', reason: 'Partie en cours' });
-        conn.close();
-        return;
-      }
+      if (Object.keys(players).length >= gameConfig.maxPlayers) { conn.send({type:'rejected',reason:'Salon complet'}); conn.close(); return; }
+      if (currentQIdx >= 0) { conn.send({type:'rejected',reason:'Partie en cours'}); conn.close(); return; }
       connections[pid] = { conn };
       conn.on('data', d => handlePlayerMessage(pid, d));
       conn.on('close', () => removePlayer(pid));
@@ -472,32 +376,26 @@
       players[pid] = { name, color, score: 0, answered: false };
       connections[pid].name = name;
       connections[pid].color = color;
-      // acknowledge
-      connections[pid].conn.send({ type: 'joined', name, color, roomCode });
+      connections[pid].conn.send({ type:'joined', name, color, roomCode });
       broadcastPlayerList();
       updateLobbyUI();
     }
     if (msg.type === 'answer' && currentQIdx >= 0 && !revealed) {
-      handleAnswer(pid, msg.choiceId, msg.timeLeft);
+      handleAnswer(pid, msg.choiceIds, msg.timeLeft);
     }
   }
 
   function removePlayer(pid) {
-    delete players[pid];
-    delete connections[pid];
-    broadcastPlayerList();
-    updateLobbyUI();
-    updateAnsweredCount();
+    delete players[pid]; delete connections[pid];
+    broadcastPlayerList(); updateLobbyUI(); updateAnsweredCount();
   }
 
   function broadcastPlayerList() {
-    const list = Object.entries(players).map(([id, p]) => ({ id, name: p.name, color: p.color, score: p.score }));
-    broadcast({ type: 'playerList', players: list });
+    const list = Object.entries(players).map(([id,p]) => ({id, name:p.name, color:p.color, score:p.score}));
+    broadcast({ type:'playerList', players:list });
   }
 
-  function broadcast(msg) {
-    Object.values(connections).forEach(c => { try { c.conn.send(msg); } catch {} });
-  }
+  function broadcast(msg) { Object.values(connections).forEach(c => { try { c.conn.send(msg); } catch {} }); }
 
   // ── LOBBY UI ──
   function updateLobbyUI() {
@@ -511,60 +409,64 @@
       chip.innerHTML = `<span class="dot" style="background:${p.color}"></span>${escHtml(p.name)}`;
       list.appendChild(chip);
     });
-    const startBtn = document.getElementById('startGameBtn');
-    const hint = document.getElementById('startHint');
-    startBtn.disabled = count < 1;
-    hint.textContent = count < 1 ? 'Au moins 1 joueur requis' : `${count} joueur(s) prêt(s) — Lancez quand vous voulez !`;
+    document.getElementById('startGameBtn').disabled = count < 1;
+    document.getElementById('startHint').textContent = count < 1 ? 'Au moins 1 joueur requis' : `${count} joueur(s) prêt(s) — Lancez quand vous voulez !`;
   }
 
   function copyCode() { copyToClipboard(roomCode); }
-
   document.getElementById('startGameBtn').addEventListener('click', startGame);
 
   // ── START GAME ──
   function startGame() {
     const nq = gameConfig.numQuestions === 'all' ? quiz.questions.length : Math.min(parseInt(gameConfig.numQuestions), quiz.questions.length);
     gameQuestions = pickRandom(quiz.questions, nq).map(prepareQuestion);
-
-    // reset scores
     Object.values(players).forEach(p => { p.score = 0; p.answered = false; });
-
     document.getElementById('gameQuizTitle').textContent = quiz.title || 'Quiz';
-    broadcast({ type: 'gameStart', totalQuestions: gameQuestions.length });
+    broadcast({ type:'gameStart', totalQuestions:gameQuestions.length });
     showScreen('screenGame');
-
     currentQIdx = -1;
     nextQuestion();
   }
 
   // ── QUESTION FLOW ──
+  // Determine the answer mode for a question:
+  // - 'single'  : exactly 1 correct answer → click immediately locks in
+  // - 'any'     : multiple correct, point if you pick any correct one → click immediately locks in
+  // - 'all'     : multiple correct, must pick all → checkboxes + confirm button
+  function getAnswerMode(q) {
+    const correctCount = q.choices.filter(c => c.correct).length;
+    if (correctCount <= 1) return 'single';
+    return q.multiMode || 'any'; // multiMode set by prepareQuestion from question definition
+  }
+
   function nextQuestion() {
     currentQIdx++;
-    if (currentQIdx >= gameQuestions.length) {
-      endGame();
-      return;
-    }
+    if (currentQIdx >= gameQuestions.length) { endGame(); return; }
+
     revealed = false;
     answerTally = {};
     playerAnswers = {};
-    Object.values(players).forEach(p => p.answered = false);
+    Object.values(players).forEach(p => { p.answered = false; });
 
     const q = gameQuestions[currentQIdx];
-    // initialise tally
     q.choices.forEach(c => { answerTally[c.id] = 0; });
 
-    // update progress
+    const mode = getAnswerMode(q);
+    q._mode = mode;
+
     document.getElementById('gameProgress').textContent = `Question ${currentQIdx + 1} / ${gameQuestions.length}`;
-    document.getElementById('qProgressFill').style.width = `${((currentQIdx) / gameQuestions.length) * 100}%`;
+    document.getElementById('qProgressFill').style.width = `${(currentQIdx / gameQuestions.length) * 100}%`;
 
-    // image
     const imgEl = document.getElementById('questionImg');
-    if (q.image) { imgEl.src = q.image; imgEl.style.display = 'block'; }
-    else { imgEl.style.display = 'none'; }
-
+    if (q.image) { imgEl.src = q.image; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; }
     document.getElementById('questionText').textContent = q.text;
 
-    // render answers
+    // mode badge
+    const badge = document.getElementById('questionModeBadge');
+    if (mode === 'any') badge.innerHTML = `<span class="mode-badge mode-any">✅ Plusieurs bonnes réponses — la première suffit</span>`;
+    else if (mode === 'all') badge.innerHTML = `<span class="mode-badge mode-all">☑️ Cochez toutes les bonnes réponses</span>`;
+    else badge.innerHTML = '';
+
     renderHostAnswers(q.choices, false);
     updateAnsweredCount();
     updateLiveScores();
@@ -572,18 +474,27 @@
     document.getElementById('revealBtn').disabled = false;
     document.getElementById('nextQBtn').disabled = true;
 
-    // send question to players (without revealing correct answers)
+    // timer display
+    const tw = document.getElementById('timerWrapper');
+    if (gameConfig.noTimer) {
+      tw.classList.add('timer-hidden');
+      document.getElementById('timerVal').textContent = '∞';
+    } else {
+      tw.classList.remove('timer-hidden');
+    }
+
     broadcast({
       type: 'question',
       index: currentQIdx,
       total: gameQuestions.length,
       text: q.text,
       image: q.image || null,
-      choices: q.choices.map(c => ({ id: c.id, text: c.text })),
-      timeLimit: gameConfig.timePerQ,
+      choices: q.choices.map(c => ({ id:c.id, text:c.text })),
+      timeLimit: gameConfig.noTimer ? 0 : gameConfig.timePerQ,
+      answerMode: mode,
     });
 
-    startTimer(gameConfig.timePerQ);
+    if (!gameConfig.noTimer) startTimer(gameConfig.timePerQ);
   }
 
   function renderHostAnswers(choices, showResult) {
@@ -592,15 +503,9 @@
     choices.forEach((c, i) => {
       const div = document.createElement('div');
       div.className = 'host-answer-item';
-      if (showResult) {
-        div.classList.add(c.correct ? 'revealed-correct' : 'revealed-wrong');
-      }
+      if (showResult) div.classList.add(c.correct ? 'revealed-correct' : 'revealed-wrong');
       const count = answerTally[c.id] || 0;
-      div.innerHTML = `
-        <span class="answer-letter">${LETTERS[i]}</span>
-        ${escHtml(c.text)}
-        <span class="answer-count-badge">${count}</span>
-      `;
+      div.innerHTML = `<span class="answer-letter">${LETTERS[i]}</span>${escHtml(c.text)}<span class="answer-count-badge">${count}</span>`;
       grid.appendChild(div);
     });
   }
@@ -609,7 +514,7 @@
   function startTimer(seconds) {
     const arc = document.getElementById('timerArc');
     const val = document.getElementById('timerVal');
-    const circ = 2 * Math.PI * 34; // ≈213.6
+    const circ = 2 * Math.PI * 34;
     let remaining = seconds;
 
     function tick() {
@@ -622,25 +527,41 @@
     timer = setInterval(() => {
       remaining--;
       tick();
-      // relay tick to players
-      broadcast({ type: 'tick', remaining });
-      if (remaining <= 0) {
-        clearInterval(timer);
-        revealAnswers();
-      }
+      broadcast({ type:'tick', remaining });
+      if (remaining <= 0) { clearInterval(timer); revealAnswers(); }
     }, 1000);
   }
 
   // ── ANSWER HANDLING ──
-  function handleAnswer(pid, choiceId, timeLeft) {
+  // choiceIds is always an array (even for single choice)
+  function handleAnswer(pid, choiceIds, timeLeft) {
     if (players[pid].answered) return;
     players[pid].answered = true;
 
-    // score
     const q = gameQuestions[currentQIdx];
-    const chosen = q.choices.find(c => c.id === choiceId);
-    if (chosen && chosen.correct) {
-      if (gameConfig.scoringMode === 'speed') {
+    const mode = q._mode;
+    const ids = Array.isArray(choiceIds) ? choiceIds : [choiceIds];
+
+    // tally
+    ids.forEach(id => {
+      if (answerTally[id] !== undefined) answerTally[id]++;
+      else answerTally[id] = 1;
+    });
+    playerAnswers[pid] = ids;
+
+    // scoring
+    let correct = false;
+    if (mode === 'single' || mode === 'any') {
+      // any of the chosen ids is correct => point
+      correct = ids.some(id => q.choices.find(c => c.id === id)?.correct);
+    } else if (mode === 'all') {
+      // must have selected exactly all correct ids (no more, no less)
+      const correctIds = q.choices.filter(c => c.correct).map(c => c.id);
+      correct = correctIds.length === ids.length && correctIds.every(id => ids.includes(id));
+    }
+
+    if (correct) {
+      if (gameConfig.scoringMode === 'speed' && !gameConfig.noTimer) {
         const bonus = Math.round((timeLeft / gameConfig.timePerQ) * 500);
         players[pid].score += 500 + bonus;
       } else {
@@ -648,18 +569,11 @@
       }
     }
 
-    playerAnswers[pid] = choiceId;
-    if (answerTally[choiceId] !== undefined) answerTally[choiceId]++;
-    else answerTally[choiceId] = 1;
-
     updateAnsweredCount();
     renderHostAnswers(q.choices, false);
     updateLiveScores();
+    connections[pid]?.conn.send({ type:'answerAck', choiceIds: ids });
 
-    // confirm to player
-    connections[pid]?.conn.send({ type: 'answerAck', choiceId });
-
-    // auto-reveal if everyone answered
     const allAnswered = Object.values(players).every(p => p.answered);
     if (allAnswered && !revealed) revealAnswers();
   }
@@ -680,36 +594,25 @@
     const q = gameQuestions[currentQIdx];
     renderHostAnswers(q.choices, true);
     updateLiveScores();
-
-    const scores = Object.entries(players).map(([id, p]) => ({ id, name: p.name, score: p.score }));
-    broadcast({ type: 'reveal', correctIds: q.correctIds, scores });
-
+    const scores = Object.entries(players).map(([id,p]) => ({ id, name:p.name, score:p.score }));
+    broadcast({ type:'reveal', correctIds:q.correctIds, scores });
     document.getElementById('revealBtn').disabled = true;
     document.getElementById('nextQBtn').disabled = false;
   }
 
   document.getElementById('nextQBtn').addEventListener('click', () => {
-    if (currentQIdx < gameQuestions.length - 1) {
-      broadcast({ type: 'nextQuestion' });
-      nextQuestion();
-    } else {
-      endGame();
-    }
+    if (currentQIdx < gameQuestions.length - 1) { broadcast({type:'nextQuestion'}); nextQuestion(); }
+    else endGame();
   });
 
   function updateLiveScores() {
-    const sorted = Object.values(players).sort((a, b) => b.score - a.score);
+    const sorted = Object.values(players).sort((a,b) => b.score - a.score);
     const list = document.getElementById('liveScoreList');
     list.innerHTML = '';
     sorted.forEach((p, i) => {
       const row = document.createElement('div');
       row.className = 'live-score-row';
-      row.innerHTML = `
-        <span style="font-weight:900; color:var(--text-muted); width:20px;">${i+1}</span>
-        <span class="live-score-name">${escHtml(p.name)}</span>
-        <span class="live-score-answered">${p.answered ? '✓' : '…'}</span>
-        <span class="live-score-pts">${p.score}</span>
-      `;
+      row.innerHTML = `<span style="font-weight:900;color:var(--text-muted);width:20px;">${i+1}</span><span class="live-score-name">${escHtml(p.name)}</span><span class="live-score-answered">${p.answered ? '✓' : '…'}</span><span class="live-score-pts">${p.score}</span>`;
       list.appendChild(row);
     });
   }
@@ -717,19 +620,17 @@
   // ── END GAME ──
   function endGame() {
     clearInterval(timer);
-    const sorted = Object.values(players).sort((a, b) => b.score - a.score);
-    broadcast({ type: 'gameEnd', scores: sorted.map(p => ({ name: p.name, score: p.score })) });
+    const sorted = Object.values(players).sort((a,b) => b.score - a.score);
+    broadcast({ type:'gameEnd', scores:sorted.map(p => ({name:p.name, score:p.score})) });
     showResults(sorted);
   }
 
   function showResults(sorted) {
     showScreen('screenResults');
     document.getElementById('resultsSubtitle').textContent = `${sorted.length} joueur(s) · ${gameQuestions.length} question(s)`;
-
-    // podium
     const podiumEl = document.getElementById('podium');
     podiumEl.innerHTML = '';
-    const order = [1, 0, 2]; // 2nd, 1st, 3rd visually
+    const order = [1,0,2];
     const medals = ['🥇','🥈','🥉'];
     const classes = ['p2','p1','p3'];
     order.forEach((rank, col) => {
@@ -738,43 +639,28 @@
       const slot = document.createElement('div');
       slot.className = 'podium-slot';
       slot.style.order = col;
-      slot.innerHTML = `
-        <span class="podium-name">${escHtml(p.name)}</span>
-        <span class="podium-score">${p.score} pts</span>
-        <div class="podium-block ${classes[col]}">${medals[rank]}</div>
-      `;
+      slot.innerHTML = `<span class="podium-name">${escHtml(p.name)}</span><span class="podium-score">${p.score} pts</span><div class="podium-block ${classes[col]}">${medals[rank]}</div>`;
       podiumEl.appendChild(slot);
     });
-
-    // full leaderboard
     const lb = document.getElementById('fullLeaderboard');
     lb.innerHTML = '';
     sorted.forEach((p, i) => {
       const item = document.createElement('div');
       item.className = 'leaderboard-item';
-      item.innerHTML = `
-        <span class="leaderboard-rank">${i < 3 ? medals[i] : i+1}</span>
-        <span class="leaderboard-name" style="color:${p.color}">${escHtml(p.name)}</span>
-        <span class="leaderboard-score">${p.score} pts</span>
-      `;
+      item.innerHTML = `<span class="leaderboard-rank">${i < 3 ? medals[i] : i+1}</span><span class="leaderboard-name" style="color:${p.color}">${escHtml(p.name)}</span><span class="leaderboard-score">${p.score} pts</span>`;
       lb.appendChild(item);
     });
   }
 
   document.getElementById('playAgainBtn').addEventListener('click', () => {
-    // reset scores, go back to lobby
     Object.values(players).forEach(p => { p.score = 0; p.answered = false; });
-    currentQIdx = -1;
-    revealed = false;
-    broadcast({ type: 'backToLobby' });
+    currentQIdx = -1; revealed = false;
+    broadcast({type:'backToLobby'});
     showScreen('screenLobby');
     updateLobbyUI();
   });
 
-  // ── UTILS ──
-  function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
+  function escHtml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   </script>
 </body>
 </html>
