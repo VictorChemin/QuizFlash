@@ -147,9 +147,22 @@ function prepareQuestion(q) {
   const correct = q.answers.filter(a => a.correct);
   const wrong = q.answers.filter(a => !a.correct);
   const numChoices = Math.min(q.numChoices || 4, q.answers.length);
-  const numCorrectNeeded = Math.min(correct.length, Math.floor(numChoices / 2)) || 1;
-  const pickedCorrect = pickRandom(correct, numCorrectNeeded);
-  const pickedWrong = pickRandom(wrong, numChoices - numCorrectNeeded);
+
+  let pickedCorrect, pickedWrong;
+
+  if (q.multiMode === 'all') {
+    // Must show ALL correct answers — player needs to find every one of them.
+    // Fill remaining slots with random wrong answers up to numChoices.
+    pickedCorrect = correct;
+    const slots = Math.max(numChoices - pickedCorrect.length, 0);
+    pickedWrong = pickRandom(wrong, slots);
+  } else {
+    // single / any: cap correct answers at half the choices so it stays challenging
+    const numCorrectNeeded = Math.min(correct.length, Math.floor(numChoices / 2)) || 1;
+    pickedCorrect = pickRandom(correct, numCorrectNeeded);
+    pickedWrong = pickRandom(wrong, numChoices - numCorrectNeeded);
+  }
+
   const choices = shuffle([...pickedCorrect, ...pickedWrong]);
   return {
     ...q,
