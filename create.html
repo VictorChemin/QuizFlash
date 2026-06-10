@@ -193,6 +193,7 @@
           <button class="btn btn-primary" id="saveBtn" style="flex:1;">💾 Sauvegarder</button>
           <button class="btn btn-yellow" id="downloadBtn" style="flex:1;">⬇️ Télécharger</button>
         </div>
+        <button class="btn btn-sm btn-outline" id="resetQuizBtn" style="width:100%; margin-top:8px; color:var(--coral); border-color:var(--coral);">🗑️ Supprimer le quiz</button>
         <p class="hint-text" style="text-align:center; margin-top:8px;">Fichier .quiz — stocké chez vous, pas sur nos serveurs</p>
       </aside>
 
@@ -237,6 +238,27 @@
             <span class="num-display" id="numDisplay">4</span>
             <button class="num-btn" id="numInc">+</button>
             <span style="font-family:'Nunito',sans-serif; font-size:0.9rem; color:var(--text-muted);">propositions</span>
+          </div>
+
+          <div id="multiModeSection" style="display:none; margin-top:20px;">
+            <div class="section-divider">Mode de réponse (plusieurs bonnes réponses détectées)</div>
+            <p class="hint-text" style="margin-bottom:12px;">Comment le joueur doit-il répondre quand il y a plusieurs bonnes réponses ?</p>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <label style="display:flex; align-items:flex-start; gap:12px; cursor:pointer; padding:12px 14px; border-radius:var(--radius-sm); border:2.5px solid var(--border); background:var(--bg); transition:border-color 0.15s;" id="modeAnyLabel">
+                <input type="radio" name="multiMode" value="any" id="modeAny" style="margin-top:3px; accent-color:var(--mint); flex-shrink:0;" />
+                <div>
+                  <div style="font-family:'Nunito',sans-serif; font-weight:800; color:#1A7A64;">✅ Une bonne réponse suffit</div>
+                  <div class="hint-text">Le joueur clique sur une proposition. S'il tombe sur une bonne réponse, il gagne les points immédiatement.</div>
+                </div>
+              </label>
+              <label style="display:flex; align-items:flex-start; gap:12px; cursor:pointer; padding:12px 14px; border-radius:var(--radius-sm); border:2.5px solid var(--border); background:var(--bg); transition:border-color 0.15s;" id="modeAllLabel">
+                <input type="radio" name="multiMode" value="all" id="modeAll" style="margin-top:3px; accent-color:var(--purple); flex-shrink:0;" />
+                <div>
+                  <div style="font-family:'Nunito',sans-serif; font-weight:800; color:var(--purple);">☑️ Toutes les bonnes réponses requises</div>
+                  <div class="hint-text">Le joueur coche plusieurs propositions, puis valide. Les points ne sont accordés que si toutes les bonnes réponses (et seulement elles) sont cochées.</div>
+                </div>
+              </label>
+            </div>
           </div>
 
           <div class="editor-actions">
@@ -309,6 +331,11 @@
       currentImage = q.image || null;
       renderImage();
       renderAnswers(q.answers || []);
+      // restore multiMode radio
+      const mode = q.multiMode || 'any';
+      const radio = document.querySelector(`input[name="multiMode"][value="${mode}"]`);
+      if (radio) radio.checked = true;
+      updateMultiModeVisibility(q.answers || []);
       emptyStateEl.style.display = 'none';
       questionEditorEl.style.display = '';
       renderList();
@@ -327,6 +354,24 @@
         removeImageBtnEl.style.display = 'none';
       }
     }
+
+    // ── MULTI-MODE VISIBILITY ──
+    function updateMultiModeVisibility(answers) {
+      const correctCount = (answers || collectAnswers()).filter(a => a.correct).length;
+      const section = document.getElementById('multiModeSection');
+      section.style.display = correctCount >= 2 ? '' : 'none';
+      // highlight selected radio label
+      ['modeAny', 'modeAll'].forEach(id => {
+        const radio = document.getElementById(id);
+        const label = document.getElementById(id + 'Label');
+        if (radio && label) label.style.borderColor = radio.checked ? (id === 'modeAny' ? 'var(--mint)' : 'var(--purple)') : 'var(--border)';
+      });
+    }
+
+    // keep radio labels styled on change
+    document.querySelectorAll('input[name="multiMode"]').forEach(r => {
+      r.addEventListener('change', () => updateMultiModeVisibility());
+    });
 
     // ── RENDER ANSWERS ──
     function renderAnswers(answers) {
@@ -350,6 +395,7 @@
       toggle.addEventListener('click', () => {
         const isCorrect = toggle.classList.toggle('is-correct');
         row.classList.toggle('correct-answer', isCorrect);
+        updateMultiModeVisibility();
       });
       row.querySelector('.answer-del').addEventListener('click', () => row.remove());
       return row;
@@ -373,6 +419,7 @@
         answers: collectAnswers(),
         numChoices: parseInt(numDisplayEl.textContent) || 4,
         image: currentImage,
+        multiMode: document.querySelector('input[name="multiMode"]:checked')?.value || 'any',
       };
     }
 
@@ -481,6 +528,17 @@
     });
     document.getElementById('saveBtn').addEventListener('click', saveQuiz);
     document.getElementById('downloadBtn').addEventListener('click', downloadQuiz);
+    document.getElementById('resetQuizBtn').addEventListener('click', () => {
+      if (!confirm('Supprimer tout le quiz ? Cette action effacera le titre, la description et toutes les questions. Elle est irréversible.')) return;
+      quiz = { title: '', description: '', questions: [] };
+      currentQIndex = -1;
+      currentImage = null;
+      quizTitleEl.value = '';
+      quizDescEl.value = '';
+      localStorage.removeItem('quizflash_draft');
+      renderList();
+      toast('Quiz supprimé.', 'warning');
+    });
 
     // ── IMPORT ──
     document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importInput').click());
